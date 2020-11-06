@@ -17,9 +17,7 @@ function get_players(start_user="ZacTodd")
     while length(q) != 0
         p = dequeue!(q)
         player_info = user_info(p)
-#         if !("#" in p)
         push!(players_winrate, p => player_info["winsInLast100Games"])
-#         end
         for g in player_info["gameDatas"]
             for op in g["players"]
                 username = op["username"]
