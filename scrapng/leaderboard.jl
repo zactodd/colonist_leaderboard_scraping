@@ -22,9 +22,9 @@ function get_players(start_user="ZacTodd")
     while length(q) != 0
         p = dequeue!(q)
         player_info = user_info(p)
-
+        has_bot_games = false
         num_players_list = []
-        push!(players_winrate, p => player_info["winsInLast100Games"])
+
         for g in player_info["gameDatas"]
             append!(num_players_list, length(g["players"]))
             for op in g["players"]
@@ -33,7 +33,14 @@ function get_players(start_user="ZacTodd")
                     push!(seen, username)
                     enqueue!(q, username)
                 end
+                if username == "Bot"
+                    has_bot_games = true
+                end
             end
+        end
+
+        if has_bot_games
+            continue
         end
 
         winrate = player_info["winsInLast100Games"]
@@ -45,6 +52,7 @@ function get_players(start_user="ZacTodd")
             push!(players_winrate, p => (winrate, Float16(-log(score)), avg_players))
         catch Exception
             println("Error $p with $winrate")
+            continue
         end
 
         l = length(players_winrate)
