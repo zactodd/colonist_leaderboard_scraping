@@ -8,6 +8,11 @@ user_url(user) = "$PROFILE_URL/$user"
 info_from_url(url, headers) = HTTP.request("GET", url, headers=headers).body |> String |> JSON.parse
 user_info(user) = info_from_url(user_url(user), ["cookie" => COOKIE])
 
+
+binimal_prob(x::BigInt, p::BigFloat) = binomial(BigInt(100), x) * (p ^ x) * ((1 - p) ^ (100 - x))
+binimal_prob_less_than_equal(x::BigInt, p::BigFloat) = sum(binimal_prob(i, p) for i in 1:x)
+
+
 function get_players(start_user="ZacTodd")
     players_winrate = Dict()
     seen = Set([start_user])
@@ -17,8 +22,11 @@ function get_players(start_user="ZacTodd")
     while length(q) != 0
         p = dequeue!(q)
         player_info = user_info(p)
+
+        num_players_list = []
         push!(players_winrate, p => player_info["winsInLast100Games"])
         for g in player_info["gameDatas"]
+            append!(num_players_list, length(g["players"]))
             for op in g["players"]
                 username = op["username"]
                 if !occursin("#", username) && !(username in seen)
@@ -27,11 +35,33 @@ function get_players(start_user="ZacTodd")
                 end
             end
         end
+
+        winrate = player_info["winsInLast100Games"]
+
+        try
+            avg_players = sum(num_players_list) / length(num_players_list)
+
+            score =  1 - binimal_prob_less_than_equal(BigInt(winrate), BigFloat(1 / avg_players))
+            push!(players_winrate, p => (winrate, Float16(-log(score)), avg_players))
+        catch Exception
+            println("Error $p with $winrate")
+        end
+
         l = length(players_winrate)
-        top5 = sort(collect(players_winrate), by=x -> -x[2])[1:min(5, l)]
-        println("Players calulate/seen: $l/$(length(seen)), Top 5: $top5")
+        top5 = sort(collect(players_winrate), by=x -> -x[2][2])[1:min(5, l)]
+
+        top5_str = ""
+        for (i, x) in enumerate(top5)
+            top5_str *= "\n\t$i. $(x[1]) ($(x[2][1]), $(x[2][2]), $(x[2][3])) "
+        end
+
+        println("Players calulate/seen: $l/$(length(seen))\nTop 5: (p100, score, avg ppl)) $top5_str")
     end
 end
+
+
+
+
 
 
 get_players()
