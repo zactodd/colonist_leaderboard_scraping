@@ -48,14 +48,14 @@ function get_players(start_user="ZacTodd")
         end
 
         l = length(players_winrate)
-        top5 = sort(collect(players_winrate), by=x -> -x[2][2])[1:min(5, l)]
+        top5 = sort(collect(players_winrate), by=x -> -x[2][2])[1:min(30, l)]
 
         top5_str = ""
         for (i, x) in enumerate(top5)
             top5_str *= "\n\t$i. $(x[1]) ($(x[2][1]), $(x[2][2]), $(x[2][3])) "
         end
 
-        println("Players calulate/seen: $l/$(length(seen))\nTop 5: (p100, score, avg ppl)) $top5_str")
+        println("Players calulate/seen: $l/$(length(seen))\nTop 30: (p100, score, avg ppl)) $top5_str")
     end
 end
 
