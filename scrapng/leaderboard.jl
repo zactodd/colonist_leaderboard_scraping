@@ -32,7 +32,7 @@ function get_players(start_user="ZacTodd")
 
         l = length(players_winrate)
         top = sort(collect(players_winrate), by=x -> -x[2][2])[1:min(30, l)]
-        top = join(map(x -> "\t$(x[1]). $(x[2][1]) ($(join(x[2][2], " ,")))", enumerate(top)), "\n")
+        top = join(map(x -> "\t$(x[1]). $(x[2][1]) ($(join(x[2][2], ", ")))", enumerate(top)), "\n")
         println("Players eval/seen: $l/$(length(seen))\nTop 30: (p100, score, avg ppl)) \n$top")
     end
 end
