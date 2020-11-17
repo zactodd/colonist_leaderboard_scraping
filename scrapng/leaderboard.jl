@@ -51,7 +51,7 @@ end
 
 
 function eval_player_info(player_name, seen_players)
-    player_info = try user_info(player_name) catch Exception return missing end
+    player_info = try user_info(player_name) catch Exception return missing, missing end
     has_bot_games = false
     num_players_list = []
 
